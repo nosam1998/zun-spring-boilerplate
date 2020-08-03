@@ -7,7 +7,10 @@ import com.sgz.server.entities.User;
 import com.sgz.server.exceptions.*;
 import com.sgz.server.jwt.JwtConfig;
 import com.sgz.server.jwt.JwtSecretKey;
-import com.sgz.server.services.*;
+import com.sgz.server.services.AuthService;
+import com.sgz.server.services.RoleService;
+import com.sgz.server.services.UserDetailsServiceImpl;
+import com.sgz.server.services.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +42,6 @@ class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
-    private AdminService adminService;
 
     @MockBean
     private UserService userService;
@@ -100,6 +100,28 @@ class UserControllerTest {
 
         String content = mvcResult.getResponse().getContentAsString();
         assertEquals(expected, content);
+    }
+
+    @Test
+    void createUserBindingResultError() throws Exception {
+        final String expected = "{\"message\":\"Fields are invalid\",\"name\":\"InvalidRequestBodyException\"";
+        User toCreate  = new User();
+        toCreate.setPassword(" ");
+        toCreate.setUsername(" ");
+
+        when(roleService.getRoleByAuthority(anyString())).thenReturn(expectedRole);
+        when(userService.createUser(any(User.class))).thenReturn(expectedUser);
+
+        MvcResult mvcResult = mockMvc.perform(
+                post(baseURL + "create")
+                        .content(objectMapper.writeValueAsString(toCreate))
+                        .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+        assertTrue(content.contains(expected));
     }
 
     @Test
@@ -253,6 +275,30 @@ class UserControllerTest {
 
         String content = mvcResult.getResponse().getContentAsString();
         assertEquals(expected, content);
+    }
+
+    @Test
+    @WithMockUser
+    void updateUserByIdBindingResultException() throws Exception {
+        final String expected = "{\"message\":\"Fields are invalid\",\"name\":\"InvalidRequestBodyException\"";
+        User toUpdate  = new User();
+        toUpdate.setPassword(" ");
+        toUpdate.setUsername(" ");
+
+        when(userService.getUserByName(anyString())).thenReturn(expectedUser);
+        when(authService.getUserId()).thenReturn(id);
+        when(roleService.getRoleByAuthority(anyString())).thenReturn(expectedRole);
+        when(userService.editUser(any(User.class), any(UUID.class))).thenReturn(expectedUser);
+
+        MvcResult mvcResult = mockMvc.perform(
+                put(baseURL + "/" + testUUIDStr)
+                        .content(objectMapper.writeValueAsString(toUpdate))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+        assertTrue(content.contains(expected));
     }
 
     @Test

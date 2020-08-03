@@ -169,6 +169,25 @@ class RoleControllerTest {
 
     @Test
     @WithMockUser(value = "Sam", roles = {"ADMIN"})
+    void createRoleBindingResultException() throws Exception {
+        final String expected = "{\"message\":\"Fields are invalid\",\"name\":\"InvalidRequestBodyException\"";
+
+        when(roleService.createRole(any(Role.class))).thenReturn(expectedRole);
+
+        MvcResult mvcResult = mockMvc.perform(
+                post(baseURL)
+                        .content(objectMapper.writeValueAsString(new Role(" ")))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+        assertTrue(content.contains(expected));
+
+    }
+
+    @Test
+    @WithMockUser(value = "Sam", roles = {"ADMIN"})
     void createRoleInvalidEntity() throws Exception {
         final String expectedMsg = "\"message\":\"Fields entered are invalid\",";
         final String expectedName = "\"name\":\"InvalidEntityException\",";
@@ -235,6 +254,25 @@ class RoleControllerTest {
 
         String content = mvcResult.getResponse().getContentAsString();
         assertEquals("{\"id\":\"00000000-0000-0024-0000-000000000024\",\"authority\":\"USER\"}", content);
+    }
+
+    @Test
+    @WithMockUser(value = "Sam", roles = {"ADMIN"})
+    void editRoleBindingResultException() throws Exception {
+        final String expected = "{\"message\":\"Fields are invalid\",\"name\":\"InvalidRequestBodyException\"";
+
+        when(roleService.editRole(any(Role.class))).thenReturn(expectedRole);
+        when(roleService.getRoleByAuthority(anyString())).thenReturn(expectedRole);
+
+        MvcResult mvcResult = mockMvc.perform(
+                put(baseURL + "/" + id.toString())
+                        .content(objectMapper.writeValueAsString(new Role(" ")))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+        assertTrue(content.contains(expected));
     }
 
     @Test

@@ -99,6 +99,28 @@ public class ExceptionHandlerController {
         return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(NumberFormatException.class)
+    public final ResponseEntity<CustomError> handleNumberFormatException(
+            NumberFormatException ex,
+            WebRequest req) {
+
+        final String CUSTOM_ERR_MESSAGE = "Number Format Exception";
+
+        return new ResponseEntity<>(new CustomError(CUSTOM_ERR_MESSAGE, "NumberFormatException"),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public final ResponseEntity<CustomError> handleIllegalArgumentException(
+            IllegalArgumentException ex,
+            WebRequest req) {
+
+        final String CUSTOM_ERR_MESSAGE = "Illegal argument";
+
+        return new ResponseEntity<>(new CustomError(CUSTOM_ERR_MESSAGE, "IllegalArgumentException"),
+                HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CustomError> catchAll(Exception ex) {
         CustomError err = new CustomError("Server Exception", "Exception");

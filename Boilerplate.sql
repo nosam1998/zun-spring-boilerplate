@@ -7,7 +7,7 @@ USE BoilerplateDB;
 CREATE TABLE Users(
 	Id BINARY(16) PRIMARY KEY,
     Username VARCHAR(100) UNIQUE NOT NULL,
-    `Password` VARCHAR(250) NOT NULL
+    `Password` VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE Roles(

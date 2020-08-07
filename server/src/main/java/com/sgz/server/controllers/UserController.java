@@ -65,7 +65,7 @@ public class UserController {
         try {
             User toCheck = userService.getUserByName(toEdit.getUsername());
 
-            if (!toCheck.getId().equals(id)) {
+            if (!toCheck.getId().equals(authService.getUserId())) {
                 return new ResponseEntity(HttpStatus.BAD_REQUEST);
             }
         } catch (InvalidNameException | InvalidEntityException ex) {

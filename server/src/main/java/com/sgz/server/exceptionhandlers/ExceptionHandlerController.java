@@ -153,7 +153,7 @@ public class ExceptionHandlerController {
         return new ResponseEntity<>(new CustomError("Server Exception", "Exception"), HttpStatus.BAD_REQUEST);
     }
 
-    private final void logHandler(Exception toLog, WebRequest req){
+    private void logHandler(Exception toLog, WebRequest req){
         logger.error(toLog.getMessage(), toLog);
         logger.info(
                 req.getDescription(true),
